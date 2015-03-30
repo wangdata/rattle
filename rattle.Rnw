@@ -1,0 +1,356 @@
+\let\raggedright\relax
+
+\documentclass{beamer}
+\mode<presentation>{
+\usetheme{Madrid}
+\usecolortheme{wolverine}
+}
+
+\usefonttheme{professionalfonts}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{amsmath}
+\usepackage{xcolor}
+\hypersetup{
+  unicode={true},
+  bookmarksopen={true},
+  pdfborder={0 0 0},
+  citecolor=blue,
+  linkcolor=blue,
+  anchorcolor=blue,
+  urlcolor=blue,
+  colorlinks=true,
+  pdfborder=000
+}
+
+\setbeamertemplate{theorems}[numbered]
+\setbeamertemplate{caption}[numbered]
+\renewcommand\tablename{\color{red} Table}
+\renewcommand\figurename{\color{red} Figure}
+\newtheorem{mythl}{\color{red} Lemma}
+\newtheorem{mytht}{\color{red} Theorem}
+\newtheorem{mythr}{\color{red} Remark}[section]
+\newtheorem{mythc}{\color{red} Corollary}[section]
+\newtheorem{mythd}{\color{red} Definition}
+\newtheorem{mythp}{\color{red} Proposition}
+
+\graphicspath{{pictures/}}
+
+\everydisplay{\color{red}}
+\setbeamercovered{transparent}
+\beamerdefaultoverlayspecification{<+->}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\frametitle{Overview}
+\tableofcontents[currentsection]
+\end{frame}
+}
+\AtBeginSubsection[]
+{
+\begin{frame}
+\frametitle{Overview}
+\tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/shaded]
+\end{frame}
+}
+
+
+\begin{document}
+
+\title[Rattle]{Data Mining with Rattle and R (I)} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Yongqiang Lian} % Your name
+\institute[SFS] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+East China Normal University \\ % Your institution for the title page
+\medskip
+\textcolor{blue}{yqlian.rol@gmail.com} % Your email address
+}
+\date{March 27, 2015}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\thispagestyle{empty}
+\addtocounter{framenumber}{-1}
+\end{frame}
+
+\begin{frame}
+\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}
+\frametitle{Introduction}
+\begin{itemize}
+\item \textbf{Data mining} is the art and science of intelligent data analysis. The aim is to discover meaningful insights and knowledge from data. Discoveries are often expressed as models, and we often describe data mining as the process of building models. A model captures, in some formulation, the essence of the discovered knowledge. A model can be used to assist in our understanding of the world. Models can also be used to make predictions.
+\item \textbf{Rattle} has been developed using the Gnome (1997) toolkit with the Glade (1998) graphical user interface (GUI) builder. Gnome is independent of any programming language, and the GUI side of Rattle started out using the Python (1989) programming language. Graham Williams soon moved to R directly, once RGtk2 (Lawrence and Temple Lang, 2010) became available, providing access to Gnome from R.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Rattle Workflow}
+\begin{itemize}
+\item Rattle is built on the statistical language R, but an understanding of R is not required in order to use it. Rattle is simple to use, quick to deploy, and allows us to rapidly work through the data processing, modelling, and evaluation phases of a data mining project.
+\item The typical workflow for a data mining project can be summarised as:
+  \begin{enumerate}
+  \item Load a Dataset.
+  \item Select variables and entities for exploring and mining.
+  \item Explore the data to understand how it is distributed or spread.
+  \item Transform the data to suit our data mining purposes.
+  \item Build our Models.
+  \item Evaluate the models on other datasets.
+  \item Export the models for deployment.
+  \end{enumerate}
+\end{itemize}
+\end{frame}
+
+\section{Starting Rattle}
+\begin{frame}[fragile]
+\frametitle{Installing Rattle}
+\begin{itemize}
+\item If you already have R installed and have installed the appropriate GTK libraries for your operating system, then installing Rattle is as simple as:
+<<eval=FALSE,tidy=TRUE>>=
+install.packages("rattle")
+@
+\item Once installed, the function \textcolor{red}{rattleInfo()} provides version information for rattle and dependencies and will also check for available updates and generate the command that can be cut-and-pasted to update the appropriate packages.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Starting \& Quitting}
+\begin{itemize}
+\item Starting:
+<<eval=FALSE,tidy=TRUE>>=
+library(rattle)
+rattle()
+@
+\item The Rattle user interface is a simple tab-based interface, with the idea being to work from the leftmost tab to the rightmost tab, mimicking the typical data mining process.
+\begin{mythr}
+The key to using Rattle, as hinted at in the status bar on starting up Rattle, is to supply the appropriate information for a particular tab and to then click the Execute button to perform the action. Always make sure you have clicked the Execute button before proceeding to the next step.
+\end{mythr}
+\item Quitting: To exit from Rattle, we simply click the \textcolor{red}{Quit} button.
+\end{itemize}
+\end{frame}
+
+\section{Sample Datasets}
+\begin{frame}
+\frametitle{Weather}
+\begin{itemize}
+\item A significant amount of effort within a data mining project is spent in processing our data into a form suitable for data mining. The amount of such effort should not be underestimated.
+\item The data \textbf{Weather} comes from a weather monitoring station located in Canberra, Australia, via the Australian Bureau of Meteorology. Each observation is a summary of the weather conditions on a particular day. It has been processed to include a target variable that indicates whether it rained the day following the particular observation.
+\item Using this historic data, we will build a model to predict whether it will rain tomorrow.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item Obtaining Data:
+<<eval=FALSE>>=
+today <- format(Sys.Date(), format = "%Y%m")
+bom <- paste("http://www.bom.gov.au/climate/dwo/", today,
+  "/text/IDCJDW2801.", today, ".csv", sep = "")
+dsw <- read.csv(bom, skip = 6, check.names = FALSE)
+@
+<<eval=FALSE,tidy=TRUE>>=
+dim(dsw)
+names(dsw)
+@
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item Data Preprocessing:
+<<eval=FALSE>>=
+ndsw <- dsw[-c(1, 10)]
+names(ndsw) <- c("Date", "MinTemp", "MaxTemp",
+  "Rainfall", "Evaporation", "Sunshine",
+  "WindGustDir", "WindGustSpeed", "Temp9am",
+  "Humidity9am", "Cloud9am", "WindDir9am",
+  "WindSpeed9am", "Pressure9am", "Temp3pm",
+  "Humidity3pm", "Cloud3pm", "WindDir3pm",
+  "WindSpeed3pm", "Pressure3pm")
+@
+<<eval=FALSE,tidy=TRUE>>=
+dim(ndsw)
+names(ndsw)
+@
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item Data Cleaning:
+<<eval=FALSE>>=
+vars <- c("WindGustSpeed", "WindSpeed9am", "WindSpeed3pm")
+head(ndsw[vars])
+class(ndsw)
+apply(ndsw[vars], MARGIN = 2, FUN = class)
+@
+<<eval=FALSE,tidy=TRUE>>=
+ndsw$WindSpeed9am <- as.character(ndsw$WindSpeed9am)
+ndsw$WindSpeed3pm <- as.character(ndsw$WindSpeed3pm)
+ndsw$WindGustSpeed <- as.character(ndsw$WindGustSpeed)
+head(ndsw[vars])
+@
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item Missing Values:
+<<eval=FALSE>>=
+ndsw <- within(ndsw,
+  {
+  WindSpeed9am[WindSpeed9am == ""] <- NA
+  WindSpeed3pm[WindSpeed3pm == ""] <- NA
+  WindGustSpeed[WindGustSpeed == ""] <- NA
+  }
+)
+@
+<<eval=FALSE>>=
+ndsw <- within(ndsw,
+  {
+  WindSpeed9am[WindSpeed9am == "Calm"] <- "0"
+  WindSpeed3pm[WindSpeed3pm == "Calm"] <- "0"
+  WindGustSpeed[WindGustSpeed == "Calm"] <- "0"
+  }
+)
+@
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item Missing Values:
+<<eval=FALSE>>=
+ndsw <- within(ndsw,
+  {
+  WindSpeed9am <- as.numeric(WindSpeed9am)
+  WindSpeed3pm <- as.numeric(WindSpeed3pm)
+  WindGustSpeed <- as.numeric(WindGustSpeed)
+  }
+)
+apply(ndsw[vars], 2, class)
+head(ndsw[vars])
+@
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item Missing Values:
+<<eval=FALSE>>=
+levels(ndsw$WindDir9am)
+ndsw <- within(ndsw,
+  {
+  WindDir9am[WindDir9am == " "] <- NA
+  WindDir9am[is.na(WindSpeed9am) |
+    (WindSpeed9am == 0)] <- NA
+  WindDir3pm[WindDir3pm == " "] <- NA
+  WindDir3pm[is.na(WindSpeed3pm) |
+    (WindSpeed3pm == 0)] <- NA
+  WindGustDir[WindGustDir == " "] <- NA
+  WindGustDir[is.na(WindGustSpeed) |
+    (WindGustSpeed == 0)] <- NA
+  }
+)
+@
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item Data Transforms: Another common operation on a dataset is to create a new variable from other variables. An example is to capture whether it rained today. This can be simply determined, by definition, through checking whether there was more than 1 mm of rain today.
+<<eval=FALSE>>=
+ndsw$RainToday <- ifelse(ndsw$Rainfall > 1, "Yes", "No")
+vars <- c("Rainfall", "RainToday")
+head(ndsw[vars])
+@
+\item We want to also capture and associate with today's observation whether it rains tomorrow. This is to become our target variable. Once again, if it rains less than 1 mm tomorrow, then we report that as no rain. To capture this variable, we need to consider the observation of rainfall recorded on the following day.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Weather}
+\begin{itemize}
+\item
+<<eval=FALSE>>=
+ndsw$RainTomorrow <- c(ndsw$RainToday[2:nrow(ndsw)], NA)
+vars <- c("Rainfall", "RainToday", "RainTomorrow")
+head(ndsw[vars])
+@
+\item Finally, we would also like to record the amount of rain observed tomorrow.
+<<eval=FALSE>>=
+ndsw$RISK_MM <- c(ndsw$Rainfall[2:nrow(ndsw)], NA)
+vars <- c("Rainfall", "RainToday",
+  "RainTomorrow", "RISK_MM")
+head(ndsw[vars])
+@
+\item The source dataset has now been processed to include a variable that we might like to treat as a target variable - to indicate whether it rained the following day.
+\end{itemize}
+\end{frame}
+
+\section{Loading a Dataset}
+\begin{frame}
+\frametitle{Loading a Dataset}
+\begin{itemize}
+\item \textbf{Numeric}: If the data consists of numbers, like temperature, rainfall, and wind speed.
+\item \textbf{Categoric} If the data consists of characters from the alphabet, like the wind direction, which might be \textcolor{red}{N} or \textcolor{blue}{S}, etc.
+\item \textbf{Ident}(identifier): An Ident is often one of the variables (columns) in the data that uniquely identifies each observation (row) of the data.
+\end{itemize}
+\end{frame}
+
+\section{Understanding Data}
+\begin{frame}
+\frametitle{Understanding Data}
+\begin{itemize}
+\item A realistic data mining project, though, will precede modelling with quite an extensive exploration of data, in addition to understanding the business, understanding what data is available, and transforming such data into a form suitable for modelling. There is a lot more involved than just building a model.
+\item Bar Plot
+\item Box Plot
+\item Histogram
+\item \textcolor{red}{A picture is worth a thousand words.}
+\end{itemize}
+\end{frame}
+
+\section{Building a Model}
+\begin{frame}
+\frametitle{Building a Model}
+\begin{itemize}
+\item Using Rattle, we click the \textcolor{red}{Model} tab and are presented with the Model options.
+\item To build a decision tree model, one of the most common data mining models, click the \textcolor{red}{Execute} button (decision trees are the default).
+\item We might click on the \textcolor{red}{Draw} button provided by Rattle to obtain the plot.
+\item Clicking the \textcolor{red}{Rules} button will display a list of rules that are derived directly from the decision tree (we'll need to scroll the panel contained in the Model tab to see them).
+\end{itemize}
+\end{frame}
+
+\section{Evaluating the Model}
+\begin{frame}
+\frametitle{Confusion Matrix}
+\begin{itemize}
+\item Evaluation is a critical step in any data mining process, and one that is often left underdone. For the sake of getting started, we will look at a simple evaluation tool.
+\item The \textcolor{red}{confusion matrix} (also referred to as the \textcolor{red}{error matrix}) is a common mechanism for evaluating model performance.
+\item \textit{training dataset} 70\%
+\item \textit{validation dataset} 15\%
+\item \textit{testing dataset} 15\%
+\item A confusion matrix simply compares the decisions made by the model with the actual decisions. This will provide us with an understanding of the level of accuracy of the model in terms of how well the model will perform on new, previously unseen, data.
+\item Evaluate tab
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\Huge{\centerline{The End}}
+\end{frame}
+
+\end{document}
