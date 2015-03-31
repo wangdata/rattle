@@ -60,7 +60,6 @@
 \begin{document}
 
 \title[Rattle]{Data Mining with Rattle and R (I)} % The short title appears at the bottom of every slide, the full title is only on the title page
-
 \author{Yongqiang Lian} % Your name
 \institute[SFS] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
 {
@@ -82,7 +81,6 @@ East China Normal University \\ % Your institution for the title page
 \end{frame}
 
 \section{Introduction}
-
 \begin{frame}
 \frametitle{Introduction}
 \begin{itemize}
