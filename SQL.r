@@ -35,7 +35,7 @@ odbcClose(channel)
 library(RODBC)
 
 # 创建连接
-channel <- odbcConnect("MySQLTest", uid = "root", pwd = "19910303")
+channel <- odbcConnect("MySQLTest", uid = "root", pwd = "***")
 
 # 执行查询
 org1 <- sqlFetch(channel, 'sakila.city')
@@ -74,7 +74,7 @@ head(mydata2, n = 10)
 
 # ------------------------------------------------------------------
 library(RMySQL)
-con <- dbConnect(MySQL(), user = "root", password = "19910303", dbname = "test")
+con <- dbConnect(MySQL(), user = "root", password = "***", dbname = "test")
 res <- dbSendQuery(con, "SELECT * FROM world.city")
 dat <- fetch(res)
 head(dat)
